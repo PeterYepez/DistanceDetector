@@ -1,0 +1,97 @@
+#define buzzer 3    //learned from Creation Crate subscription
+#define echoPin 6
+#define trigPin 7
+#define white1 8
+#define white2 9
+#define yellow1 10
+#define yellow2 11
+#define red1 12
+#define red2 13
+
+int units = 1; // 1 = centimeters and 2 = inches
+int sound = 250;
+float duration, distance; // float for more accuracy
+
+void setup() {
+   Serial.begin(9600); // start the serial monitor to print info to screen
+   pinMode(buzzer, OUTPUT);
+   pinMode(echoPin, INPUT);                              //echoPin is an input the rest are outputs
+   pinMode(trigPin, OUTPUT);
+   pinMode(white1, OUTPUT);
+   pinMode(white2, OUTPUT);
+   pinMode(yellow1, OUTPUT);
+   pinMode(yellow2, OUTPUT);
+   pinMode(red1, OUTPUT);
+   pinMode(red2, OUTPUT);
+}
+
+void loop() {
+//we are going to activate the ultrasonic sensor then it sends pulses of sound waves and we find the distance with that
+Serial.println (units);
+  digitalWrite(trigPin, LOW);                            //start with sensor off
+  delayMicroseconds(5);
+  digitalWrite(trigPin, HIGH);                           // sensor on and sends waves
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);                            // sensor off again
+
+//"pulseIn" calculates how long it took for the signal to return and stores it in "duration"
+  duration = pulseIn(echoPin, HIGH);
+    Serial.print ("Time ms: ");
+    Serial.print (duration);
+
+// For when it is in inches vs when it is in centimeters. The .034 is because sound travels 343m/s
+// Changing that to cm/microsecond it is 34,300/1,000,000 which is .034. divide duration by 2 because it traves there and back
+if (units == 1) {
+  distance = .034 * (duration/2);                        //This is in centimeters
+    Serial.print (" | Distance cm: ");
+    Serial.println (distance);
+}
+  else {
+    distance = (.034 * (duration/2))/2.54;               //2.54 centimeters in 1 inch so that is why we divide
+    Serial.print (" | Distance inches: ");
+    Serial.println (distance);
+  }
+//This section will turn on and off LEDs and change the buzzing sound depending on the distance
+  if(distance <= 500) {
+    digitalWrite(white1, HIGH);
+    sound = 900;
+  }
+  else { digitalWrite(white1, LOW); }
+
+  if(distance < 30) {
+    digitalWrite(white2, HIGH);
+    sound = 1000;
+  }
+  else { digitalWrite(white2, LOW); }
+
+  if(distance < 20) {
+    digitalWrite(yellow1, HIGH);
+    sound = 1100;
+  }
+  else { digitalWrite(yellow1, LOW); }
+
+  if(distance < 15) {
+    digitalWrite(yellow2, HIGH);
+    sound = 1200;
+  }
+  else { digitalWrite(yellow2, LOW); }
+
+  if(distance < 10) {
+    digitalWrite(red1, HIGH);
+    sound = 1300;
+  }
+  else { digitalWrite(red1, LOW); }
+
+  if(distance < 5) {
+    digitalWrite(red2, HIGH);
+    sound = 1400;
+  }
+  else { digitalWrite(red2, LOW); }
+  
+//This turns off buzzer if the object is too far but the white1 light will stay on
+  if (distance > 40 || distance <=0) {
+    noTone(buzzer);
+  }
+  else { tone(buzzer, sound); }
+    delay(500);
+}
